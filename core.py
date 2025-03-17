@@ -117,4 +117,4 @@ class AutoEDA:
                 n=sample_size, 
                 random_state=self.config["sampling"]["random_state"]
             )
-            self.logger.info(f"Created sample of {sample_size} rows from {len(self.df)} total rows
+            self.logger.info(f"Created sample of {sample_size} rows from {len(self.df)} total rows")
