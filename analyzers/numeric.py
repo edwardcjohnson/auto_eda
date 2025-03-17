@@ -1,15 +1,17 @@
 """
 Numeric data analysis functionality.
+
+This module provides functions to analyze numeric columns in a DataFrame.
 """
 
 import pandas as pd
 import numpy as np
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 
 
 def analyze_numeric_columns(
     df: pd.DataFrame,
-    columns: List[str],
+    columns: Optional[List[str]] = None,
     **kwargs
 ) -> Dict[str, Dict[str, Any]]:
     """
@@ -18,58 +20,60 @@ def analyze_numeric_columns(
     Parameters
     ----------
     df : pd.DataFrame
-        The DataFrame to analyze.
-    columns : List[str]
-        The list of numeric column names to analyze.
+        The DataFrame to analyze
+    columns : List[str], optional
+        List of numeric column names to analyze, by default None (all numeric columns)
     **kwargs
-        Additional arguments for analysis configuration.
+        Additional analysis parameters
         
     Returns
     -------
     Dict[str, Dict[str, Any]]
-        A dictionary mapping column names to their analysis results.
+        Dictionary mapping column names to their analysis results
     """
+    # If no columns are specified, use all numeric columns
+    if columns is None:
+        columns = df.select_dtypes(include=['number']).columns.tolist()
+    
+    # Filter out columns that don't exist in the DataFrame
+    columns = [col for col in columns if col in df.columns]
+    
+    # Initialize results dictionary
     results = {}
     
+    # Analyze each numeric column
     for column in columns:
-        if column not in df.columns:
+        # Skip non-numeric columns
+        if not pd.api.types.is_numeric_dtype(df[column]):
             continue
         
-        # Get column data without NaN values for statistics
+        # Get column data without NaN values
         column_data = df[column].dropna()
         
-        # Basic statistics
-        stats = {
-            'mean': column_data.mean() if len(column_data) > 0 else None,
-            'median': column_data.median() if len(column_data) > 0 else None,
-            'std': column_data.std() if len(column_data) > 0 else None,
-            'min': column_data.min() if len(column_data) > 0 else None,
-            'max': column_data.max() if len(column_data) > 0 else None,
-            'range': column_data.max() - column_data.min() if len(column_data) > 0 else None,
-            'q1': column_data.quantile(0.25) if len(column_data) > 0 else None,
-            'q3': column_data.quantile(0.75) if len(column_data) > 0 else None,
-            'iqr': column_data.quantile(0.75) - column_data.quantile(0.25) if len(column_data) > 0 else None,
-            'skew': column_data.skew() if len(column_data) > 0 else None,
-            'kurtosis': column_data.kurtosis() if len(column_data) > 0 else None,
-            'count': len(column_data),
-            'missing_count': df[column].isna().sum(),
-            'missing_percentage': df[column].isna().mean() * 100,
-        }
+        if len(column_data) == 0:
+            results[column] = {
+                "error": "No valid data for analysis"
+            }
+            continue
         
-        # Detect outliers using IQR method
-        if len(column_data) > 0:
-            q1 = stats['q1']
-            q3 = stats['q3']
-            iqr = stats['iqr']
-            lower_bound = q1 - 1.5 * iqr
-            upper_bound = q3 + 1.5 * iqr
-            
-            outliers = column_data[(column_data < lower_bound) | (column_data > upper_bound)]
-            stats['outlier_count'] = len(outliers)
-            stats['outlier_percentage'] = len(outliers) / len(column_data) * 100 if len(column_data) > 0 else 0
-            stats['outlier_lower_bound'] = lower_bound
-            stats['outlier_upper_bound'] = upper_bound
+        # Calculate basic statistics
+        stats = column_data.describe()
         
-        results[column] = stats
+        # Convert to dictionary and add additional metrics
+        column_stats = stats.to_dict()
+        
+        # Add skewness and kurtosis if there are enough data points
+        if len(column_data) >= 3:
+            column_stats["skewness"] = column_data.skew()
+            column_stats["kurtosis"] = column_data.kurtosis()
+        
+        # Add number of zeros and missing values
+        column_stats["zeros_count"] = (df[column] == 0).sum()
+        column_stats["zeros_percentage"] = (df[column] == 0).mean() * 100
+        column_stats["missing_count"] = df[column].isna().sum()
+        column_stats["missing_percentage"] = df[column].isna().mean() * 100
+        
+        # Store results
+        results[column] = column_stats
     
     return results

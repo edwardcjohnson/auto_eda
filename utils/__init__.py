@@ -1,17 +1,11 @@
 """
-Utility functions for the AutoEDA package.
+Utility functions for the auto_eda package.
 
-This package contains various utility modules:
-- Configuration handling
-- Logging utilities
-- Helper functions
+This package contains various utility functions used throughout the auto_eda package.
 """
 
-from auto_eda.utils.config import load_configuration, save_configuration
-from auto_eda.utils.logger import setup_logger
+from auto_eda.utils.type_inference import infer_column_types
 
 __all__ = [
-    "load_configuration",
-    "save_configuration",
-    "setup_logger",
+    "infer_column_types",
 ]
