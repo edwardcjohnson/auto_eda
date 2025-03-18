@@ -53,7 +53,8 @@ auto_eda/
 │   ├── reporting/             # Reporting modules
 │   │   ├── __init__.py
 │   │   ├── html_report.py     # HTML report generation
-│   │   ├── notebook.py        # Jupyter notebook integration
+│   │   ├── markdown_report.py # Markdown report generation
+│   │   ├── utils.py           # Utility functions for report generation
 │   │   └── templates/         # Report templates
 │   │       ├── base.html
 │   │       ├── sections/
@@ -66,12 +67,9 @@ auto_eda/
 │       └── helpers.py         # Helper functions
 │
 ├── examples/                  # Example notebooks and scripts
-│   ├── basic_usage.ipynb
-│   ├── advanced_usage.ipynb
-│   ├── text_analysis.ipynb
-│   └── sample_data/
-│       ├── titanic.csv
-│       └── customer_feedback.csv
+│   ├── basic_usage.py
+│   ├── advanced_usage.py
+│   ├── text_analysis.py
 │
 └── tests/                     # Unit tests
     ├── __init__.py
@@ -99,7 +97,7 @@ The recommended installation is via setup.py.
 pip install auto-eda
 
 # Or install from source:
-git clone https://github.com/yourusername/auto-eda.git
+git clone https://github.com/edwardcjohnson/auto-eda.git
 cd auto-eda
 pip install -e .                # Install in development mode
 pip install -e ".[full]"         # Install with all optional dependencies
@@ -125,80 +123,6 @@ eda.visualize()
 
 # Create an HTML report
 eda.generate_report(title="My Data Analysis Report")
-```
-
-## Example Usage
-
-### Basic Analysis
-
-```python
-from auto_eda import AutoEDA
-
-# Initialize
-eda = AutoEDA()
-
-# Load sample data
-eda.load_data("examples/sample_data/titanic.csv")
-
-# Run analysis and generate the report in one step
-eda.run_analysis_and_report(
-    title="Titanic Dataset Analysis",
-    text_columns=["Name"],
-    categorical_threshold=0.05
-)
-```
-
-### Advanced Configuration
-
-```python
-from auto_eda import AutoEDA
-
-# Initialize with custom configuration
-eda = AutoEDA(
-    config_path="my_config.yaml",
-    report_dir="./custom_reports",
-    log_level="DEBUG"
-)
-
-# Load data with custom type inference settings
-eda.load_data(
-    "examples/sample_data/customer_data.csv",
-    infer_types=True,
-    categorical_threshold=0.1,
-    numeric_detection_strictness="high"
-)
-
-# Override inferred types if needed
-eda.override_types({
-    "customer_id": "categorical",
-    "signup_code": "categorical"
-})
-
-# Run targeted analysis
-eda.analyze(
-    text_columns=["customer_feedback"],
-    date_columns=["signup_date", "last_purchase"],
-    correlation_method="spearman",
-    outlier_detection=True
-)
-
-# Create custom visualizations
-eda.create_visualization_suite(
-    scatterplot_matrix=True,
-    color_by="customer_segment",
-    size_by="total_spend",
-    include_trend_lines=True,
-    highlight_outliers=True,
-    interactive=True
-)
-
-# Generate a comprehensive report
-eda.generate_report(
-    title="Customer Data Analysis",
-    include_recommendations=True,
-    interactive=True,
-    executive_summary=True
-)
 ```
 
 ## Configuration
@@ -254,6 +178,22 @@ auto-eda analyze path/to/data.csv --config my_config.yaml
 
 # Display help message
 auto-eda --help
+```
+
+## Examples
+
+The `examples/` directory includes several Python scripts that demonstrate how to use AutoEDA.
+
+- **basic_analysis.py**  
+  This script creates a sample DataFrame (with 20 rows and 8 columns) containing various data types, runs basic analysis and visualization, and generates an HTML report.
+
+- **advanced_usage.py**  
+  This script demonstrates more advanced usage. It creates a sample DataFrame, simulates custom configuration overrides, forces specific column types, and generates both HTML and Markdown reports.
+
+To run an example, simply execute the script from the command line. For example:
+
+```bash
+python examples/basic_analysis.py
 ```
 
 ## Dependencies

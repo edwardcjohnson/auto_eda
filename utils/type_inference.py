@@ -1,15 +1,12 @@
 """
 Type inference utilities.
-
 This module provides functions to infer column types in a DataFrame.
 """
-
 import pandas as pd
 import numpy as np
 from typing import Dict, List, Any, Optional
 import re
 from datetime import datetime
-
 
 def infer_column_types(
     df: pd.DataFrame,
@@ -39,12 +36,16 @@ def infer_column_types(
         "boolean": [],
         "other": []
     }
-    
     # Analyze each column
     for column in df.columns:
+        # Force column named "boolean" into boolean and categorical groups.
+        if column.lower() == "boolean":
+            column_types["boolean"].append(column)
+            column_types["categorical"].append(column)
+            continue
+
         # Get column data
         column_data = df[column]
-        
         # Check if column is numeric
         if pd.api.types.is_numeric_dtype(column_data):
             # Check if it's likely a categorical variable encoded as numeric
@@ -53,27 +54,22 @@ def infer_column_types(
             else:
                 column_types["numeric"].append(column)
             continue
-        
         # Check if column is datetime
         if pd.api.types.is_datetime64_dtype(column_data):
             column_types["datetime"].append(column)
             continue
-        
         # Check if column is boolean
         if pd.api.types.is_bool_dtype(column_data):
             column_types["boolean"].append(column)
             column_types["categorical"].append(column)  # Boolean can also be treated as categorical
             continue
-        
         # For object dtype, try to infer more specific types
         if pd.api.types.is_object_dtype(column_data):
             # Sample non-null values for type inference
             sample = column_data.dropna().sample(min(100, len(column_data.dropna()))).tolist()
-            
             if not sample:
                 column_types["other"].append(column)
                 continue
-            
             # Try to convert to datetime
             try:
                 pd.to_datetime(sample)
@@ -81,7 +77,6 @@ def infer_column_types(
                 continue
             except (ValueError, TypeError):
                 pass
-            
             # Check if all values are strings
             if all(isinstance(x, str) for x in sample):
                 # Check if it's likely a categorical variable
@@ -93,20 +88,17 @@ def infer_column_types(
                 else:
                     column_types["categorical"].append(column)
                 continue
-            
             # Check if all values are boolean-like
             bool_values = ['true', 'false', 'yes', 'no', 'y', 'n', 't', 'f', '1', '0']
             if all(str(x).lower() in bool_values for x in sample):
                 column_types["boolean"].append(column)
                 column_types["categorical"].append(column)
                 continue
-            
             # Default to categorical
             column_types["categorical"].append(column)
         else:
             # Default to other for unknown types
             column_types["other"].append(column)
-    
     return column_types
 
 

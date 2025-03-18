@@ -11,6 +11,11 @@ from typing import Dict, List, Any, Optional, Union
 from pathlib import Path
 from datetime import datetime
 
+def format_percentage(val) -> str:
+    try:
+        return f"{float(val):.2f}%"
+    except (ValueError, TypeError):
+        return "N/A"
 
 def generate_markdown_report(
     df: pd.DataFrame,
@@ -140,7 +145,7 @@ def generate_markdown_report(
             md_content.append(f"### {column}\n")
             
             md_content.append(f"**Unique Values:** {stats.get('unique_count', 'N/A')}  ")
-            md_content.append(f"**Most Common:** {stats.get('most_common_value', 'N/A')} ({stats.get('most_common_percentage', 'N/A'):.2f}%)\n")
+            md_content.append(f"**Most Common:** {stats.get('most_common_value', 'N/A')} ({format_percentage(stats.get('most_common_percentage', None))})\n")
             
             # Add value counts table
             if "value_counts" in stats:
