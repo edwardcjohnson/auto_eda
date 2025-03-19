@@ -182,18 +182,21 @@ auto-eda --help
 
 ## Examples
 
-The `examples/` directory includes several Python scripts that demonstrate how to use AutoEDA.
+The `examples/` directory includes several Python scripts that demonstrate how to use AutoEDA:
 
 - **basic_analysis.py**  
-  This script creates a sample DataFrame (with 20 rows and 8 columns) containing various data types, runs basic analysis and visualization, and generates an HTML report.
+  Creates a sample DataFrame with 20 rows and 8 columns (numeric, categorical, datetime, boolean, text, and ID) and runs a basic analysis, visualization, and HTML/Markdown report generation.
 
 - **advanced_usage.py**  
-  This script demonstrates more advanced usage. It creates a sample DataFrame, simulates custom configuration overrides, forces specific column types, and generates both HTML and Markdown reports.
+  Demonstrates advanced usage with custom configuration and type overrides, generating both HTML and Markdown reports.
+
+- **text_analysis.py**  
+  Demonstrates text analysis on a DataFrame’s text column. This example uses the built-in functions from `auto_eda.analyzers.text` to compute word frequencies, length statistics, and sentiment scores for product reviews.
 
 To run an example, simply execute the script from the command line. For example:
 
 ```bash
-python examples/basic_analysis.py
+python examples/text_analysis.py
 ```
 
 ## Dependencies
