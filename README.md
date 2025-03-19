@@ -238,7 +238,7 @@ python examples/text_analysis.py
 Clone the repository and install in development mode:
 
 ```bash
-git clone https://github.com/yourusername/auto-eda.git
+git clone https://github.com/edwardcjohnson/auto-eda.git
 cd auto-eda
 pip install -e ".[full,dev]"
 ```
